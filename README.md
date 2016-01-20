@@ -1,1 +1,2 @@
-# wasted_time_counter
+# Wasted time counter
+Silence is gold.
