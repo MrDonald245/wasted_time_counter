@@ -1,0 +1,5 @@
+<resources>
+<string name="app_name">WastedTimeCounter</string>
+    <string name="action_settings">Настройки</string>
+    <string name="pref_header_add">Add apps</string>
+</resources>

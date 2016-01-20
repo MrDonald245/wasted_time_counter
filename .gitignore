@@ -23,7 +23,7 @@ Thumbs.db
 
 # Eclipse project files
 .classpath
-.project
+.projectd
 
 # Android Studio
 *.iml
@@ -33,3 +33,12 @@ build/
 
 #NDK
 obj/
+
+# Automatic ignore by GitHub for desctop
+gradlew.bat
+gradlew
+gradle.properties
+settings.gradle
+build.gradle
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
