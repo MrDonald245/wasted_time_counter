@@ -5,14 +5,14 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.wastedtimecounter.adapters.ApplicationAdapter;
 import com.wastedtimecounter.R;
+import com.wastedtimecounter.adapters.ApplicationAdapter;
 import com.wastedtimecounter.services.ApplicationsListener;
 
 import java.util.ArrayList;
@@ -25,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
     private ApplicationAdapter adapter = null;
     private ListView listView;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,11 +39,43 @@ public class MainActivity extends AppCompatActivity {
         startService(new Intent(this, ApplicationsListener.class));
     }
 
-    public boolean onCreateOptionsMenu (Menu menu){
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
+
+    /**
+     * Menu handler.
+     *
+     * @param item View which call the handler.
+     * @return true if all is ok, false otherwise.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                openPreferenceActivity();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
+    /**
+     * Show preference activity.
+     */
+    private void openPreferenceActivity() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
 
 
     private List<ApplicationInfo> checkForLaunchIntent(List<ApplicationInfo> list) {
@@ -55,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return applist;
     }
+
 
     private class LoadApplications extends AsyncTask<Void, Void, Void> {
         private ProgressDialog progressDialog;
