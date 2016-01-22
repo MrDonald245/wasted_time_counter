@@ -1,15 +1,17 @@
 package com.wastedtimecounter.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.widget.Button;
+import android.view.MenuItem;
 
 import com.wastedtimecounter.R;
 
 import java.util.List;
 
 /**
- *
+ * The settings activity which
+ * provide you through all settings of the program
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
@@ -17,13 +19,23 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Add a button to the header list.
-        if (hasHeaders()) {
-            Button button = new Button(this);
-            button.setText("Some action");
-            setListFooter(button);
-        }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
+
+
+    /**
+     * Called when back button was click.
+     *
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivityForResult(myIntent, 0);
+        return true;
+    }
+
 
     /**
      * Populate the activity with the top-level headers.
@@ -74,5 +86,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
                 || AddPreferenceFragment.class.getName().equals(fragmentName);
     }
+
 
 }
