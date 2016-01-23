@@ -40,12 +40,14 @@ public class ApplicationsListener extends Service {
     private ArrayList<HashMap<String, Object>> processList;
     private ArrayList<String> packages;
     private Date split = null;
+    private Bundle b=new Bundle();
 
     public static int SERVICE_PERIOD = 5000;
 
     private final ProcessList pl=new ProcessList(this) {
         @Override
         protected boolean isFilteredByName(String pack) {
+            //return !pack.equals("com.viber.voip");
             return false;
         }
     };
@@ -66,6 +68,7 @@ public class ApplicationsListener extends Service {
         initialized = true;
         processList = ((WastedApp) getApplication()).getProcessList();
         packages = ((WastedApp) getApplication()).getPackages();
+
     }
 
     public void setCallback(ServiceCallback callback) {
@@ -82,46 +85,42 @@ public class ApplicationsListener extends Service {
 
     private boolean addToStatistics(String target) {
         boolean changed = false;
-        Date now = new Date();
-        if(!TextUtils.isEmpty(target))
-        {
-         if(!target.equals(foreground))
-         {
-             int i;
-             if(foreground!=null&&split!=null)
-             {
-                 i=packages.indexOf(foreground);
-                 long delta=(now.getTime()-split.getTime())/1000;
-                 Long time=(Long)processList.get(i).get(COLUMN_PROCESS_TIME);
-                 if(time!=null)
-                 {
-                     time+=delta;
-                     Log.d("Adding",time.toString());
-                 }
-                 else
-                 {
 
-                     time= delta;
-                     Log.d("Adding time in else",time.toString());
-                 }
-                 processList.get(i).put(ProcessList.COLUMN_PROCESS_TIME,time);
-             }
-             i=packages.indexOf(target);
-             Integer count=(Integer)processList.get(i).get(COLUMN_PROCESS_COUNT);
-             if(count!=null)count++;
-             else
-             {
-                 count=new Integer(1);
-                 Log.d("count","count integer 1");
-             }
-             processList.get(i).put(COLUMN_PROCESS_COUNT,count);
+            Date now = new Date();
+            if (!TextUtils.isEmpty(target)) {
+                if (!target.equals(foreground)) {
+                    int i;
+                    if (foreground != null && split != null) {
+                        i = packages.indexOf(foreground);
+                        long delta = (now.getTime() - split.getTime()) / 1000;
+                        Long time = (Long) processList.get(i).get(COLUMN_PROCESS_TIME);
+                        if (time != null) {
+                            time += delta;
+                            b.putLong("time", time);
+                            Log.d("Adding", time.toString());
+                        } else {
 
-             foreground=target;
-             split=now;
-             changed=true;
-         }
-        }
-        return changed;
+                            time = delta;
+                            Log.d("Adding time in else", time.toString());
+                        }
+                        processList.get(i).put(ProcessList.COLUMN_PROCESS_TIME, time);
+                    }
+                    i = packages.indexOf(target);
+                    Integer count = (Integer) processList.get(i).get(COLUMN_PROCESS_COUNT);
+                    if (count != null) count++;
+                    else {
+                        count = new Integer(1);
+                        Log.d("count", "count integer 1");
+                    }
+                    processList.get(i).put(COLUMN_PROCESS_COUNT, count);
+
+                    foreground = target;
+                    split = now;
+                    changed = true;
+                }
+            }
+
+            return changed;
     }
     public void start()
     {
@@ -152,7 +151,7 @@ public class ApplicationsListener extends Service {
             if(addToStatistics(current)&&callback!=null)
             {
 
-                final Bundle b=new Bundle();
+
 
                 mHandler.post(new Runnable() {
                     @Override

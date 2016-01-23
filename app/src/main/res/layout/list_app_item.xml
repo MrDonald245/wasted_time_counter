@@ -9,17 +9,19 @@
         android:orientation="vertical"
         android:paddingLeft="5dp" >
 
-        <TextView
-            android:id="@+id/app_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:textStyle="bold" />
+      <ProgressBar
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          style="@android:style/Widget.ProgressBar.Horizontal"
+          android:id="@+id/res_progress"
+          android:progress="0"
+          android:max="50"
+          />
 
         <TextView
             android:id="@+id/app_paackage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right" />
+            android:gravity="left" />
     </LinearLayout>
 </LinearLayout>

@@ -2,9 +2,14 @@ package com.wastedtimecounter.activities;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.IBinder;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,10 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.wastedtimecounter.R;
+import com.wastedtimecounter.adapters.ApplicationAdapter;
 import com.wastedtimecounter.helpers.ProcessList;
 import com.wastedtimecounter.helpers.WastedApp;
 import com.wastedtimecounter.services.ApplicationsListener;
@@ -36,6 +43,11 @@ public class TestActivity extends AppCompatActivity implements ApplicationsListe
     private ApplicationsListener bgService;
     private ProcessListAdapter adapter = null;
     private ListView listView = null;
+    ProgressBar name;
+    TextView packageName;
+    private List<ApplicationInfo> applicationInfos;
+    private ApplicationAdapter dialogAdapter;
+    private PackageManager manager;
 
 
     @Override
@@ -49,6 +61,21 @@ public class TestActivity extends AppCompatActivity implements ApplicationsListe
         startService(new Intent(this, ApplicationsListener.class));
         this.bindService(new Intent(this, ApplicationsListener.class),
                 serviceConnection, Context.BIND_AUTO_CREATE);
+        manager=getPackageManager();
+        new customDialogLoader().execute();
+    }
+
+    private List<ApplicationInfo> checkInstApps(List<ApplicationInfo> list) {
+        ArrayList<ApplicationInfo> arrayList = new ArrayList<>();
+        for (ApplicationInfo info : list) {
+            try {
+                if (manager.getLaunchIntentForPackage(info.packageName) != null)
+                    arrayList.add(info);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return arrayList;
     }
 
     private void createAdapter() {
@@ -63,8 +90,41 @@ public class TestActivity extends AppCompatActivity implements ApplicationsListe
     @Override
     public void sendResult(int resultCode, Bundle b) {
 
+        Long L = b.getLong("time");
+        if (L != 0)
+            name.setProgress(L.intValue());
         adapter.notifyDataSetChanged();
         Log.d("changed", "window");
+
+    }
+
+    private void initCustomDialog(ApplicationAdapter adapter) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TestActivity.this);
+
+        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.show();
+    }
+
+    private class customDialogLoader extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            applicationInfos = checkInstApps(manager.getInstalledApplications(PackageManager.GET_META_DATA));
+            dialogAdapter = new ApplicationAdapter(TestActivity.this, R.layout.custom_dialog_item, applicationInfos);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            initCustomDialog(dialogAdapter);
+            super.onPostExecute(aVoid);
+        }
     }
 
     private class ProcessListAdapter extends SimpleAdapter {
@@ -91,14 +151,14 @@ public class TestActivity extends AppCompatActivity implements ApplicationsListe
         public View getView(int position, View convertView, ViewGroup parent) {
             View res = super.getView(position, convertView, parent);
 
-            TextView name = (TextView) res.findViewById(R.id.app_name);
-            TextView packageName = (TextView) res.findViewById(R.id.app_paackage);
+            name = (ProgressBar) res.findViewById(R.id.res_progress);
+            packageName = (TextView) res.findViewById(R.id.app_paackage);
 
 
-           // String count = (processList.get(position).get(COLUMN_PROCESS_TIME)).toString();
+            // String count = (processList.get(position).get(COLUMN_PROCESS_TIME)).toString();
             String seconds = (String) processList.get(position).get(COLUMN_PROCESS_NAME);
 
-           // name.setText(count);
+            // name.setText(count);
 
             packageName.setText(seconds);
 
