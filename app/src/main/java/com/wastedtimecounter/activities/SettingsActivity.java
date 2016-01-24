@@ -20,6 +20,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         super.onCreate(savedInstanceState);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
     }
 
 
@@ -47,16 +49,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 
     /**
-     * This fragment shows add preferences.
+     * This fragment shows view preferences.
      */
-    public static class AddPreferenceFragment extends PreferenceFragment {
+    public static class ViewPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
             // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.pref_add);
+            addPreferencesFromResource(R.xml.pref_view);
         }
+
 
     }
 
@@ -77,6 +80,21 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 
     /**
+     * This fragment shows notifications preferences.
+     */
+    public static class NotificationsPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource(R.xml.pref_notifications);
+        }
+
+    }
+
+
+    /**
      * This method stops fragment injection in malicious applications.
      * Make sure to deny any unknown fragments here.
      */
@@ -84,7 +102,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || AddPreferenceFragment.class.getName().equals(fragmentName);
+                || ViewPreferenceFragment.class.getName().equals(fragmentName)
+                || NotificationsPreferenceFragment.class.getName().equals(fragmentName);
     }
 
 
