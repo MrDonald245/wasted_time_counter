@@ -1,5 +1,9 @@
 <resources>
 <string name="app_name">WastedTimeCounter</string>
     <string name="action_settings">Настройки</string>
-    <string name="pref_header_add">Add apps</string>
+    <string name="pref_header_view">Add apps</string>
+    <string name="pref_view_theme_dark">Темная</string>
+    <string name="title_activity_settings">Настройки</string>
+    <string name="pref_view_theme_light">Светлая</string>
+    <string name="pref_view_theme">Тема</string>
 </resources>
