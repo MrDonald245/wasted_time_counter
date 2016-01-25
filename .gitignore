@@ -31,7 +31,7 @@ Thumbs.db
 .gradle
 build/
 
-#NDK
+# NDK
 obj/
 
 # Automatic ignore by GitHub for desctop
@@ -42,3 +42,6 @@ settings.gradle
 build.gradle
 gradle/wrapper/gradle-wrapper.jar
 gradle/wrapper/gradle-wrapper.properties
+
+# Except
+!app/build.gradle
