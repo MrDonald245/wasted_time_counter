@@ -13,6 +13,7 @@ import android.widget.ListView;
 
 import com.wastedtimecounter.R;
 import com.wastedtimecounter.adapters.ApplicationAdapter;
+import com.wastedtimecounter.preferences.support.ThemeSupport;
 import com.wastedtimecounter.services.ApplicationsListener;
 
 import java.util.ArrayList;
@@ -30,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        ThemeSupport.setActivityTheme(this);
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -37,7 +41,10 @@ public class MainActivity extends AppCompatActivity {
         packageManager = getPackageManager();
         new LoadApplications().execute();
         startService(new Intent(this, ApplicationsListener.class));
+
+
     }
+
 
     /**
      * {@inheritDoc}

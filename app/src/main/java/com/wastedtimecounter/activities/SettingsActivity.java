@@ -6,6 +6,7 @@ import android.preference.PreferenceFragment;
 import android.view.MenuItem;
 
 import com.wastedtimecounter.R;
+import com.wastedtimecounter.preferences.support.ThemeSupport;
 
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ThemeSupport.setActivityTheme(this);
+
         super.onCreate(savedInstanceState);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -59,8 +62,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.pref_view);
         }
-
-
     }
 
 
