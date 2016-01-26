@@ -41,6 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/addAppsButton"
+        android:src="@drawable/ic_add_24dp"
         app:layout_anchor="@id/viewpager"
         app:layout_anchorGravity="bottom|right|end"/>
 </android.support.design.widget.CoordinatorLayout>

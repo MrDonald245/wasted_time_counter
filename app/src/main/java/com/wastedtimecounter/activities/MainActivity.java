@@ -1,12 +1,15 @@
 package com.wastedtimecounter.activities;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -18,15 +21,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.wastedtimecounter.R;
+import com.wastedtimecounter.adapters.AppTrackingAdapter;
 import com.wastedtimecounter.adapters.CustomDialogAdapter;
-import com.wastedtimecounter.fragments.FragmentPageAdapter;
+import com.wastedtimecounter.adapters.FragmentPageAdapter;
+import com.wastedtimecounter.helpers.WastedApp;
 import com.wastedtimecounter.preferences.support.ThemeSupport;
+import com.wastedtimecounter.services.ApplicationsListener;
 
 import java.text.DateFormat;
-import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,10 +40,14 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_NAME;
+import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_PROP;
+
+public class MainActivity extends AppCompatActivity  {
 
     Toolbar toolbar;
     String arr[];
@@ -45,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     Spinner spinner;
     PackageManager packageManager;
-    ArrayList<String> checkedValue;
     FloatingActionButton fab;
 
 
@@ -59,18 +68,20 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolbar=(Toolbar)findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        packageManager=getPackageManager();
+        packageManager = getPackageManager();
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        fab=(FloatingActionButton)findViewById(R.id.addAppsButton);
+        fab = (FloatingActionButton) findViewById(R.id.addAppsButton);
+
 
 
         this.arr = new String[]{"Day", "Week", "Month"};
         spinner = (Spinner) findViewById(R.id.spinner_nav);
         initSpinner();
+
         viewPager.setAdapter(new FragmentPageAdapter(getSupportFragmentManager(),
                 MainActivity.this, 1, arr));
         tabLayout.setupWithViewPager(viewPager);
@@ -87,25 +98,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-    private void initCustomDialogItems()
-    {
-        final List<ApplicationInfo> packageInfos=packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-        final List<ApplicationInfo> applicationInfoList=packageManager.getInstalledApplications(0);
 
-        try
-        {
+    private void initCustomDialogItems() {
+        final List<ApplicationInfo> packageInfos = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+        final List<ApplicationInfo> applicationInfoList = packageManager.getInstalledApplications(0);
+
+        try {
             applicationInfoList.clear();
-            for(int i=0;i<packageInfos.size();i++)
-            {
-                ApplicationInfo info=packageInfos.get(i);
-                if((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0)
-                {
-                    try
-                    {
+            for (int i = 0; i < packageInfos.size(); i++) {
+                ApplicationInfo info = packageInfos.get(i);
+                if ((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                    try {
                         applicationInfoList.add(packageInfos.get(i));
                         Collections.sort(packageInfos, new Comparator<ApplicationInfo>() {
                             @Override
@@ -113,28 +122,37 @@ public class MainActivity extends AppCompatActivity {
                                 return lhs.loadLabel(getPackageManager()).toString().compareToIgnoreCase(rhs.loadLabel(getPackageManager()).toString());
                             }
                         });
-                    }
-                    catch (NullPointerException e)
-                    {
+                    } catch (NullPointerException e) {
                         e.printStackTrace();
                     }
-                    CustomDialogAdapter adapter=new CustomDialogAdapter(this,packageInfos,packageManager);
-                    AlertDialog.Builder builder=new AlertDialog.Builder(this);
-                    builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
 
-                        }
-                    });
-                    builder.create();
-                    builder.show();
                 }
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        CustomDialogAdapter adapter = new CustomDialogAdapter(this, packageInfos, packageManager);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.create();
+        builder.show();
 
     }
 
@@ -163,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
                                 MainActivity.this, calendar.get(Calendar.DAY_OF_MONTH), args));
 
                         tabLayout.setupWithViewPager(viewPager);
+                        TabLayout.Tab tab = tabLayout.getTabAt(calendar.get(Calendar.DAY_OF_MONTH) - 1);
+                        tab.select();
                         break;
                     }
                     case 1: {
@@ -179,6 +199,8 @@ public class MainActivity extends AppCompatActivity {
                                 MainActivity.this, calendar.get(Calendar.WEEK_OF_MONTH), args));
 
                         tabLayout.setupWithViewPager(viewPager);
+                        TabLayout.Tab tab = tabLayout.getTabAt(Calendar.WEEK_OF_MONTH - 1);
+                        tab.select();
                         break;
                     }
                     case 2: {
@@ -193,6 +215,8 @@ public class MainActivity extends AppCompatActivity {
                                 MainActivity.this, calendar.get(Calendar.MONTH) + 1, args));
 
                         tabLayout.setupWithViewPager(viewPager);
+                        TabLayout.Tab tab = tabLayout.getTabAt(Calendar.MONTH - 1);
+                        tab.select();
                         break;
                     }
 
@@ -235,7 +259,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     public String formatMonth(int month, Locale locale) {
         DateFormat formatter = new SimpleDateFormat("MMMM", locale);
         GregorianCalendar calendar = new GregorianCalendar();
@@ -243,4 +266,6 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.MONTH, month - 1);
         return formatter.format(calendar.getTime());
     }
+
+
 }

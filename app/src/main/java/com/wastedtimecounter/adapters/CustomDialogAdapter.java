@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.wastedtimecounter.R;
 
@@ -56,7 +57,7 @@ public class CustomDialogAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup parent) {
         final ViewHolder holder;
 
         LayoutInflater inflater = context.getLayoutInflater();
@@ -77,7 +78,7 @@ public class CustomDialogAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        ApplicationInfo packageInfo = (ApplicationInfo) getItem(position);
+        final ApplicationInfo packageInfo = (ApplicationInfo) getItem(position);
 
         Drawable appIcon = packageManager
                 .getApplicationIcon(packageInfo);
@@ -98,8 +99,10 @@ public class CustomDialogAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                if (holder.ck1.isChecked())
+                if (holder.ck1.isChecked()) {
                     itemChecked[position] = true;
+                    Toast.makeText(parent.getContext(),packageInfo.processName,Toast.LENGTH_SHORT).show();
+                }
                 else
                     itemChecked[position] = false;
             }
