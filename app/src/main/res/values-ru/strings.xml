@@ -1,12 +1,12 @@
 <resources>
-<string name="app_name">WastedTimeCounter</string>
+    <string name="app_name">Wasted Time Counter</string>
     <string name="action_settings">Настройки</string>
-    <string name="pref_header_view">Add apps</string>
+    <string name="pref_header_view">Вид</string>
     <string name="pref_view_theme_dark">Темная</string>
     <string name="title_activity_settings">Настройки</string>
     <string name="pref_view_theme_light">Светлая</string>
     <string name="pref_view_theme">Тема</string>
-    <string name="pref_header_add">Add apps</string>
+    <string name="pref_header_add">Добавить</string>
     <string name="week_of_month">Неделя</string>
 
     <string-array name="months">
@@ -23,4 +23,7 @@
         <item>Ноябрь</item>
         <item>Декабрь</item>
     </string-array>
+    <string name="pref_header_notifications">Уведомления</string>
+    <string name="pref_header_general">Общие</string>
+    <string name="pref_title_vibrate">Вибрация</string>
 </resources>
