@@ -5,6 +5,4 @@
         android:summary="@string/pref_view_theme"
         android:defaultValue="@string/pref_view_theme_light" />
 
-    <CheckBoxPreference android:key="test" />
-
 </PreferenceScreen>

@@ -2,7 +2,6 @@ package com.wastedtimecounter.adapters;
 
 import android.app.Activity;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -10,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -95,20 +93,27 @@ public class CustomDialogAdapter extends BaseAdapter {
         else
             holder.ck1.setChecked(false);
 
-        holder.ck1.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                if (holder.ck1.isChecked()) {
+
+                if (itemChecked[position]) {
+                    holder.ck1.setChecked(false);
+                    itemChecked[position] = false;
+                } else {
+                    holder.ck1.setChecked(true);
                     itemChecked[position] = true;
                     Toast.makeText(parent.getContext(),packageInfo.processName,Toast.LENGTH_SHORT).show();
                 }
-                else
-                    itemChecked[position] = false;
             }
-        });
+        };
+
+        holder.ck1.setOnClickListener(listener);
+        holder.apkName.setOnClickListener(listener);
 
         return convertView;
 
     }
+
+
 }
