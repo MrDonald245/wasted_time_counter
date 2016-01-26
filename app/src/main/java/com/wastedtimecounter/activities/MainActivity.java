@@ -24,7 +24,6 @@ import com.wastedtimecounter.R;
 import com.wastedtimecounter.adapters.CustomDialogAdapter;
 import com.wastedtimecounter.adapters.FragmentPageAdapter;
 import com.wastedtimecounter.preferences.support.ThemeSupport;
-import com.wastedtimecounter.realm.ApplicationRealm;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -36,10 +35,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
-import io.realm.Realm;
-import io.realm.RealmResults;
-
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity {
 
     Toolbar toolbar;
     String arr[];
@@ -69,7 +65,6 @@ public class MainActivity extends AppCompatActivity  {
         fab = (FloatingActionButton) findViewById(R.id.addAppsButton);
 
 
-
         this.arr = new String[]{"Day", "Week", "Month"};
         spinner = (Spinner) findViewById(R.id.spinner_nav);
         initSpinner();
@@ -85,23 +80,6 @@ public class MainActivity extends AppCompatActivity  {
         });
 
         // Give the TabLayout the ViewPager
-
-        testRealm();
-    }
-
-    private void testRealm() {
-        final Realm realm = Realm.getDefaultInstance();
-
-       /* realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                ApplicationRealm appRealm = realm.createObject(ApplicationRealm.class);
-                appRealm.setAppName("TestName");
-                appRealm.setPackageName("TestPackage");
-            }
-        });*/
-
-        RealmResults<ApplicationRealm> query = realm.where(ApplicationRealm.class).findAll();
     }
 
 
@@ -136,8 +114,8 @@ public class MainActivity extends AppCompatActivity  {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        CustomDialogAdapter adapter = new CustomDialogAdapter(this, packageInfos, packageManager);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final CustomDialogAdapter adapter = new CustomDialogAdapter(this, packageInfos, packageManager);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -150,12 +128,7 @@ public class MainActivity extends AppCompatActivity  {
 
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
 
-            }
-        });
         builder.create();
         builder.show();
 

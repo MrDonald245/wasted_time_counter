@@ -13,8 +13,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.wastedtimecounter.R;
+import com.wastedtimecounter.realm.ApplicationRealm;
 
 import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * Created by Антон on 26.01.2016.
@@ -23,13 +27,12 @@ public class CustomDialogAdapter extends BaseAdapter {
     List<ApplicationInfo> packageInfoList;
     Activity context;
     PackageManager packageManager;
-    boolean[]itemChecked;
+    boolean[] itemChecked;
+    Realm realm = Realm.getDefaultInstance();
 
 
-
-
-    public CustomDialogAdapter(Activity context, List <ApplicationInfo> packageList,
-                       PackageManager packageManager) {
+    public CustomDialogAdapter(Activity context, List<ApplicationInfo> packageList,
+                               PackageManager packageManager) {
         super();
         this.context = context;
         this.packageInfoList = packageList;
@@ -88,6 +91,8 @@ public class CustomDialogAdapter extends BaseAdapter {
         holder.apkName.setText(appName);
         holder.ck1.setChecked(false);
 
+        itemChecked[position] = isChecked(position);
+
         if (itemChecked[position])
             holder.ck1.setChecked(true);
         else
@@ -100,10 +105,14 @@ public class CustomDialogAdapter extends BaseAdapter {
                 if (itemChecked[position]) {
                     holder.ck1.setChecked(false);
                     itemChecked[position] = false;
+
+                    removeChange(position);
                 } else {
                     holder.ck1.setChecked(true);
                     itemChecked[position] = true;
-                    Toast.makeText(parent.getContext(),packageInfo.processName,Toast.LENGTH_SHORT).show();
+                    Toast.makeText(parent.getContext(), packageInfo.processName, Toast.LENGTH_SHORT).show();
+
+                    saveChange(position);
                 }
             }
         };
@@ -116,4 +125,59 @@ public class CustomDialogAdapter extends BaseAdapter {
     }
 
 
+    /**
+     * When the custom dialog load this method initialize checkbox.
+     *
+     * @param position current position.
+     * @return boolean true if value exist in db.
+     */
+    private boolean isChecked(int position) {
+        realm.beginTransaction();
+
+        RealmResults<ApplicationRealm> query = realm
+                .where(ApplicationRealm.class)
+                .equalTo("packageName", packageInfoList.get(position).packageName)
+                .findAll();
+
+        realm.commitTransaction();
+
+        return query.size() != 0;
+    }
+
+
+    /**
+     * Remove current change in realm db.
+     *
+     * @param position current position.
+     */
+    private void removeChange(int position) {
+        realm.beginTransaction();
+
+        RealmResults<ApplicationRealm> query = realm
+                .where(ApplicationRealm.class)
+                .equalTo("packageName", packageInfoList.get(position).packageName)
+                .findAll();
+
+        query.clear();
+
+        realm.commitTransaction();
+    }
+
+
+    /**
+     * Save current change in realm db.
+     *
+     * @param position current position.
+     */
+    private void saveChange(int position) {
+        realm.beginTransaction();
+
+        ApplicationRealm appRealm = realm.createObject(ApplicationRealm.class);
+        appRealm.setAppName((String) packageManager.getApplicationLabel(packageInfoList.get(position)));
+        appRealm.setPackageName(packageInfoList.get(position).packageName);
+
+
+        realm.commitTransaction();
+
+    }
 }
