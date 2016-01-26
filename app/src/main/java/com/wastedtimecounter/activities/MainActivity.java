@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar=(Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         packageManager=getPackageManager();
+
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         fab=(FloatingActionButton)findViewById(R.id.addAppsButton);
@@ -85,9 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
