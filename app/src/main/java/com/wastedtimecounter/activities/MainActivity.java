@@ -1,15 +1,12 @@
 package com.wastedtimecounter.activities;
 
-import android.content.ComponentName;
-import android.content.Context;
+
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -21,31 +18,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.wastedtimecounter.R;
-import com.wastedtimecounter.adapters.AppTrackingAdapter;
 import com.wastedtimecounter.adapters.CustomDialogAdapter;
 import com.wastedtimecounter.adapters.FragmentPageAdapter;
-import com.wastedtimecounter.helpers.WastedApp;
 import com.wastedtimecounter.preferences.support.ThemeSupport;
-import com.wastedtimecounter.services.ApplicationsListener;
+import com.wastedtimecounter.realm.ApplicationRealm;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_NAME;
-import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_PROP;
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -94,10 +86,23 @@ public class MainActivity extends AppCompatActivity  {
 
         // Give the TabLayout the ViewPager
 
-
+        testRealm();
     }
 
+    private void testRealm() {
+        final Realm realm = Realm.getDefaultInstance();
 
+       /* realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                ApplicationRealm appRealm = realm.createObject(ApplicationRealm.class);
+                appRealm.setAppName("TestName");
+                appRealm.setPackageName("TestPackage");
+            }
+        });*/
+
+        RealmResults<ApplicationRealm> query = realm.where(ApplicationRealm.class).findAll();
+    }
 
 
     public boolean onCreateOptionsMenu(Menu menu) {
