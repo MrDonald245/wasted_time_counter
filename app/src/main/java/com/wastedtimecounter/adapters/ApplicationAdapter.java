@@ -54,13 +54,13 @@ public class ApplicationAdapter extends ArrayAdapter<ApplicationInfo> {
         }
         ApplicationInfo applicationInfo = applicationInfos.get(position);
         if (applicationInfos != null) {
-            TextView name = (TextView) view.findViewById(R.id.dlgAppName);
-            TextView packageName = (TextView) view.findViewById(R.id.dlgAppPackage);
-            ImageView icon = (ImageView) view.findViewById(R.id.dlgIcon);
+          // TextView name = (TextView) view.findViewById(R.id.dlgAppName);
+          //  TextView packageName = (TextView) view.findViewById(R.id.dlgAppPackage);
+           // ImageView icon = (ImageView) view.findViewById(R.id.dlgIcon);
 
-            name.setText(applicationInfo.loadLabel(packageManager));
-            packageName.setText(applicationInfo.packageName);
-            icon.setImageDrawable(applicationInfo.loadIcon(packageManager));
+           // name.setText(applicationInfo.loadLabel(packageManager));
+          //  packageName.setText(applicationInfo.packageName);
+            //icon.setImageDrawable(applicationInfo.loadIcon(packageManager));
         }
         return view;
     }

@@ -1,10 +1,16 @@
 package com.wastedtimecounter.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -15,16 +21,20 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.wastedtimecounter.R;
+import com.wastedtimecounter.adapters.CustomDialogAdapter;
 import com.wastedtimecounter.fragments.FragmentPageAdapter;
 import com.wastedtimecounter.preferences.support.ThemeSupport;
 
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,6 +43,11 @@ public class MainActivity extends AppCompatActivity {
     String arr[];
     ViewPager viewPager;
     TabLayout tabLayout;
+    Spinner spinner;
+    PackageManager packageManager;
+    ArrayList<String> checkedValue;
+    FloatingActionButton fab;
+
 
     /**
      * {@inheritDoc}
@@ -44,13 +59,87 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        toolbar=(Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        packageManager=getPackageManager();
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        fab=(FloatingActionButton)findViewById(R.id.addAppsButton);
 
 
         this.arr = new String[]{"Day", "Week", "Month"};
-        Spinner spinner = (Spinner) findViewById(R.id.spinner_nav);
+        spinner = (Spinner) findViewById(R.id.spinner_nav);
+        initSpinner();
+        viewPager.setAdapter(new FragmentPageAdapter(getSupportFragmentManager(),
+                MainActivity.this, 1, arr));
+        tabLayout.setupWithViewPager(viewPager);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initCustomDialogItems();
+            }
+        });
+
+        // Give the TabLayout the ViewPager
+
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+    private void initCustomDialogItems()
+    {
+        final List<ApplicationInfo> packageInfos=packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+        final List<ApplicationInfo> applicationInfoList=packageManager.getInstalledApplications(0);
+
+        try
+        {
+            applicationInfoList.clear();
+            for(int i=0;i<packageInfos.size();i++)
+            {
+                ApplicationInfo info=packageInfos.get(i);
+                if((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0)
+                {
+                    try
+                    {
+                        applicationInfoList.add(packageInfos.get(i));
+                        Collections.sort(packageInfos, new Comparator<ApplicationInfo>() {
+                            @Override
+                            public int compare(ApplicationInfo lhs, ApplicationInfo rhs) {
+                                return lhs.loadLabel(getPackageManager()).toString().compareToIgnoreCase(rhs.loadLabel(getPackageManager()).toString());
+                            }
+                        });
+                    }
+                    catch (NullPointerException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    CustomDialogAdapter adapter=new CustomDialogAdapter(this,packageInfos,packageManager);
+                    AlertDialog.Builder builder=new AlertDialog.Builder(this);
+                    builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    builder.create();
+                    builder.show();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void initSpinner() {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, arr);
         spinner.setAdapter(adapter);
@@ -118,23 +207,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        viewPager.setAdapter(new FragmentPageAdapter(getSupportFragmentManager(),
-                MainActivity.this, 1, arr));
-        tabLayout.setupWithViewPager(viewPager);
-
-        // Give the TabLayout the ViewPager
-
-
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
 
     /**
      * Show preference activity.
@@ -163,10 +236,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    public String getMonth(int month) {
-        return new DateFormatSymbols().getMonths()[month - 1];
-    }
 
     public String formatMonth(int month, Locale locale) {
         DateFormat formatter = new SimpleDateFormat("MMMM", locale);
