@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.wastedtimecounter.activities.MainActivity;
 import com.wastedtimecounter.helpers.ProcessList;
 import com.wastedtimecounter.helpers.WastedApp;
+import com.wastedtimecounter.realm.ApplicationRealm;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
+
 import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_COUNT;
 import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_NAME;
 import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_PROP;
@@ -69,6 +74,7 @@ public class ApplicationsListener extends Service {
         processList = ((WastedApp) getApplication()).getProcessList();
         packages = ((WastedApp) getApplication()).getPackages();
 
+
     }
 
     public void setCallback(ServiceCallback callback) {
@@ -96,11 +102,16 @@ public class ApplicationsListener extends Service {
                         Long time = (Long) processList.get(i).get(COLUMN_PROCESS_TIME);
                         if (time != null) {
                             time += delta;
-                            b.putLong("time", time);
+
+
                             Log.d("Adding", time.toString());
                         } else {
 
                             time = delta;
+                            b.putLong("time", time);
+                            b.putString("target", target);
+                            b.putString("name",processList.get(i).get(COLUMN_PROCESS_NAME).toString());
+                            addStatisticToDB(b);
                             Log.d("Adding time in else", time.toString());
                         }
                         processList.get(i).put(ProcessList.COLUMN_PROCESS_TIME, time);
@@ -121,6 +132,25 @@ public class ApplicationsListener extends Service {
             }
 
             return changed;
+    }
+    public void addStatisticToDB(Bundle b)
+    {
+
+        Realm db = Realm.getDefaultInstance();
+
+        String pack=b.getString("target");
+        String name=b.getString("name");
+        int time=(int)(long)b.getLong("time");
+        ApplicationRealm res=db.where(ApplicationRealm.class).equalTo("packageName",name).findFirst();
+       // if(res!=null)
+        //time+=res.getSecondsCount();
+        ApplicationRealm realm=new ApplicationRealm();
+        realm.setPackageName(pack);
+        realm.setSecondsCount(time);
+        realm.setAppName(name);
+        db.beginTransaction();
+        db.copyToRealmOrUpdate(realm);
+        db.commitTransaction();
     }
     public void start()
     {
@@ -146,12 +176,10 @@ public class ApplicationsListener extends Service {
             fillProcessList();
             ActivityManager activityManager=(ActivityManager) ApplicationsListener.this.getSystemService(ACTIVITY_SERVICE);
             List<ActivityManager.RunningTaskInfo>taskInfos=activityManager.getRunningTasks(1);
-            String current=taskInfos.get(0).topActivity.getPackageName();
+            String current=taskInfos.get(0).topActivity.getPackageName( );
 
             if(addToStatistics(current)&&callback!=null)
             {
-
-
 
                 mHandler.post(new Runnable() {
                     @Override

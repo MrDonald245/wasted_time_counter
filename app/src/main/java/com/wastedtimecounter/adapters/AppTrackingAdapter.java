@@ -1,40 +1,79 @@
 package com.wastedtimecounter.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
+
+import com.wastedtimecounter.R;
+import com.wastedtimecounter.realm.ApplicationRealm;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 import java.util.Map;
 
+import io.realm.RealmResults;
+
 /**
  * Created by Антон on 26.01.2016.
  */
-public class AppTrackingAdapter extends SimpleAdapter {
+public class AppTrackingAdapter extends BaseAdapter {
 
-    /**
-     * Constructor
-     *
-     * @param context  The context where the View associated with this SimpleAdapter is running
-     * @param data     A List of Maps. Each entry in the List corresponds to one row in the list. The
-     *                 Maps contain the data for each row, and should include all the entries specified in
-     *                 "from"
-     * @param resource Resource identifier of a view layout that defines the views for this list
-     *                 item. The layout file should include at least those named views defined in "to"
-     * @param from     A list of column names that will be added to the Map associated with each
-     *                 item.
-     * @param to       The views that should display column in the "from" parameter. These should all be
-     *                 TextViews. The first N views in this list are given the values of the first N columns
-     */
-    public AppTrackingAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
-        super(context, data, resource, from, to);
+    RealmResults<ApplicationRealm> results;
+    Activity context;
+
+    public AppTrackingAdapter(RealmResults<ApplicationRealm> results,Activity context)
+    {
+        this.results=results;
+        this.context=context;
+    }
+    @Override
+    public int getCount() {
+        return results.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return results.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View result=super.getView(position,convertView,parent);
+        LayoutInflater inflater=context.getLayoutInflater();
+        convertView=inflater.inflate(R.layout.list_app_item,null);
 
-        return result;
+        TextView textView=(TextView)convertView.findViewById(R.id.app_paackage);
+        textView.setText(results.get(position).getAppName());
+
+        TextView progressBar=(TextView)convertView.findViewById(R.id.res_progress);
+        Integer secs=(int)(long)results.get(position).getSecondsCount();
+
+        progressBar.setText(secsToTime(secs));
+
+        return convertView;
+    }
+
+    private String secsToTime(long secs)
+    {
+        int hours=(int)secs/3600;
+        int remainder=(int)secs-hours*3600;
+        int mins=remainder/60;
+        remainder=remainder-mins*60;
+        int sec=remainder;
+
+        return hours+" hours "+mins+ " mins "+sec+" sec";
+
     }
 }

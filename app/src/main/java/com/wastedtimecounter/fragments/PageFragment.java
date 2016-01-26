@@ -23,11 +23,15 @@ import com.wastedtimecounter.R;
 import com.wastedtimecounter.activities.MainActivity;
 import com.wastedtimecounter.adapters.AppTrackingAdapter;
 import com.wastedtimecounter.helpers.WastedApp;
+import com.wastedtimecounter.realm.ApplicationRealm;
 import com.wastedtimecounter.services.ApplicationsListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_NAME;
 import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_PROP;
@@ -72,8 +76,10 @@ public class PageFragment extends Fragment implements ApplicationsListener.Servi
     }
     private void createAdapter() {
         List = ((WastedApp) getActivity().getApplication()).getProcessList();
-        adapter = new AppTrackingAdapter(getActivity().getApplicationContext(), List, R.layout.list_app_item, new String[]{COLUMN_PROCESS_NAME, COLUMN_PROCESS_PROP},
-                new int[]{android.R.id.text1, android.R.id.text2});
+        Realm realm=Realm.getDefaultInstance();
+        RealmResults<ApplicationRealm> res=realm.where(ApplicationRealm.class).findAll();
+
+        adapter = new AppTrackingAdapter(res,getActivity());
         listView.setAdapter(adapter);
     }
 
