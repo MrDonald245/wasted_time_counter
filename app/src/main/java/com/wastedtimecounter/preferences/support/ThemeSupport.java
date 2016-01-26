@@ -2,6 +2,7 @@ package com.wastedtimecounter.preferences.support;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.widget.Toolbar;
 
 import com.wastedtimecounter.R;
 

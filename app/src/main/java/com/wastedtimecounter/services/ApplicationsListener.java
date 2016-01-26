@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.wastedtimecounter.activities.MainActivity;
@@ -22,6 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_COUNT;
+import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_NAME;
+import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_PROP;
+import static com.wastedtimecounter.helpers.ProcessList.COLUMN_PROCESS_TIME;
 
 public class ApplicationsListener extends Service {
 
@@ -35,12 +40,14 @@ public class ApplicationsListener extends Service {
     private ArrayList<HashMap<String, Object>> processList;
     private ArrayList<String> packages;
     private Date split = null;
+    private Bundle b=new Bundle();
 
     public static int SERVICE_PERIOD = 5000;
 
     private final ProcessList pl=new ProcessList(this) {
         @Override
         protected boolean isFilteredByName(String pack) {
+            //return !pack.equals("com.viber.voip");
             return false;
         }
     };
@@ -50,7 +57,7 @@ public class ApplicationsListener extends Service {
     }
 
     public class LocalBinder extends Binder {
-        ApplicationsListener getService() {
+        public ApplicationsListener getService() {
             return ApplicationsListener.this;
         }
     }
@@ -61,6 +68,7 @@ public class ApplicationsListener extends Service {
         initialized = true;
         processList = ((WastedApp) getApplication()).getProcessList();
         packages = ((WastedApp) getApplication()).getPackages();
+
     }
 
     public void setCallback(ServiceCallback callback) {
@@ -77,42 +85,42 @@ public class ApplicationsListener extends Service {
 
     private boolean addToStatistics(String target) {
         boolean changed = false;
-        Date now = new Date();
-        if(!TextUtils.isEmpty(target))
-        {
-         if(!target.equals(foreground))
-         {
-             int i;
-             if(foreground!=null&&split!=null)
-             {
-                 i=packages.indexOf(foreground);
-                 long delta=(now.getTime()-split.getTime())/1000;
-                 Long time=(Long)processList.get(i).get(ProcessList.COLUMN_PROCESS_TIME);
-                 if(time!=null)
-                 {
-                     time+=delta;
-                 }
-                 else
-                 {
-                     time=new Long(delta);
-                 }
-                 processList.get(i).put(ProcessList.COLUMN_PROCESS_TIME,time);
-             }
-             i=packages.indexOf(target);
-             Integer count=(Integer)processList.get(i).get(ProcessList.COLUMN_PROCESS_COUNT);
-             if(count!=null)count++;
-             else
-             {
-                 count=new Integer(1);
-             }
-             processList.get(i).put(ProcessList.COLUMN_PROCESS_COUNT,count);
 
-             foreground=target;
-             split=now;
-             changed=true;
-         }
-        }
-        return changed;
+            Date now = new Date();
+            if (!TextUtils.isEmpty(target)) {
+                if (!target.equals(foreground)) {
+                    int i;
+                    if (foreground != null && split != null) {
+                        i = packages.indexOf(foreground);
+                        long delta = (now.getTime() - split.getTime()) / 1000;
+                        Long time = (Long) processList.get(i).get(COLUMN_PROCESS_TIME);
+                        if (time != null) {
+                            time += delta;
+                            b.putLong("time", time);
+                            Log.d("Adding", time.toString());
+                        } else {
+
+                            time = delta;
+                            Log.d("Adding time in else", time.toString());
+                        }
+                        processList.get(i).put(ProcessList.COLUMN_PROCESS_TIME, time);
+                    }
+                    i = packages.indexOf(target);
+                    Integer count = (Integer) processList.get(i).get(COLUMN_PROCESS_COUNT);
+                    if (count != null) count++;
+                    else {
+                        count = new Integer(1);
+                        Log.d("count", "count integer 1");
+                    }
+                    processList.get(i).put(COLUMN_PROCESS_COUNT, count);
+
+                    foreground = target;
+                    split = now;
+                    changed = true;
+                }
+            }
+
+            return changed;
     }
     public void start()
     {
@@ -120,6 +128,7 @@ public class ApplicationsListener extends Service {
         {
             timer=new Timer();
             timer.schedule(new MonitoringTimeTask(),500,SERVICE_PERIOD);
+            Log.d("Test","In start service");
 
         }
     }
@@ -141,13 +150,16 @@ public class ApplicationsListener extends Service {
 
             if(addToStatistics(current)&&callback!=null)
             {
-                final Bundle b=new Bundle();
+
+
+
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        callback.sendResult(1,b);
+                        callback.sendResult(1, b);
                     }
                 });
+                Log.d("test","in run ");
             }
         }
     }
@@ -155,21 +167,12 @@ public class ApplicationsListener extends Service {
 
     private void fillProcessList()
     {
+        Log.d("test","filling list");
+        Log.d("tt",COLUMN_PROCESS_NAME);
+        Log.d("tt",COLUMN_PROCESS_TIME);
         pl.fillProcessList(processList,packages);
     }
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        checkIfRunning();
-        return super.onStartCommand(intent, flags, startId);
-    }
 
-    private void checkIfRunning() {
-        ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> processInfos = activityManager.getRunningAppProcesses();
-        for (ActivityManager.RunningAppProcessInfo info : processInfos) {
-            if (info.processName.equals("com.android.gesture.builder"))
-                Toast.makeText(getApplicationContext(), "App is runing", Toast.LENGTH_SHORT).show();
-        }
-    }
+
 }
 

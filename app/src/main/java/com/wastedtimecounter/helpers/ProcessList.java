@@ -60,7 +60,7 @@ public abstract class ProcessList {
                         ai=null;
                     }
                     if(j>0)applicationName+=" / ";
-                    applicationName+=(String)(ai!=null?manager.getApplicationLabel(ai):"(unknowm)");
+                    applicationName+=(String)(ai!=null?manager.getApplicationLabel(ai):"(unknown)");
 
                 }
                 packages.add(process);
