@@ -3,7 +3,6 @@ package com.wastedtimecounter.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -26,7 +25,6 @@ import com.wastedtimecounter.fragments.FragmentPageAdapter;
 import com.wastedtimecounter.preferences.support.ThemeSupport;
 
 import java.text.DateFormat;
-import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,13 +57,14 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolbar=(Toolbar)findViewById(R.id.toolbar);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        packageManager=getPackageManager();
+        packageManager = getPackageManager();
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        fab=(FloatingActionButton)findViewById(R.id.addAppsButton);
+        fab = (FloatingActionButton) findViewById(R.id.addAppsButton);
 
 
         this.arr = new String[]{"Day", "Week", "Month"};
@@ -91,21 +90,17 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-    private void initCustomDialogItems()
-    {
-        final List<ApplicationInfo> packageInfos=packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-        final List<ApplicationInfo> applicationInfoList=packageManager.getInstalledApplications(0);
 
-        try
-        {
+    private void initCustomDialogItems() {
+        final List<ApplicationInfo> packageInfos = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+        final List<ApplicationInfo> applicationInfoList = packageManager.getInstalledApplications(0);
+
+        try {
             applicationInfoList.clear();
-            for(int i=0;i<packageInfos.size();i++)
-            {
-                ApplicationInfo info=packageInfos.get(i);
-                if((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0)
-                {
-                    try
-                    {
+            for (int i = 0; i < packageInfos.size(); i++) {
+                ApplicationInfo info = packageInfos.get(i);
+                if ((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                    try {
                         applicationInfoList.add(packageInfos.get(i));
                         Collections.sort(packageInfos, new Comparator<ApplicationInfo>() {
                             @Override
@@ -113,13 +108,11 @@ public class MainActivity extends AppCompatActivity {
                                 return lhs.loadLabel(getPackageManager()).toString().compareToIgnoreCase(rhs.loadLabel(getPackageManager()).toString());
                             }
                         });
-                    }
-                    catch (NullPointerException e)
-                    {
+                    } catch (NullPointerException e) {
                         e.printStackTrace();
                     }
-                    CustomDialogAdapter adapter=new CustomDialogAdapter(this,packageInfos,packageManager);
-                    AlertDialog.Builder builder=new AlertDialog.Builder(this);
+                    CustomDialogAdapter adapter = new CustomDialogAdapter(this, packageInfos, packageManager);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -130,9 +123,7 @@ public class MainActivity extends AppCompatActivity {
                     builder.show();
                 }
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -233,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
         }
     }
-
 
 
     public String formatMonth(int month, Locale locale) {
