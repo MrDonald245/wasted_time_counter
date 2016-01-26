@@ -22,7 +22,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         super.onCreate(savedInstanceState);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
     }
